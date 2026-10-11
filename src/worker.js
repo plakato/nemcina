@@ -60,6 +60,13 @@ const groups = (v, minSpaces) => (v || "").split("\n")
   .reduce((out, g) => (/^\(.*\)$/.test(g) && out.length ? out.push(out.pop() + " " + g) : out.push(g), out), []);
 const CZ = new Set("ěščřžýůťďňĚŠČŘŽÝŮŤĎŇ"), DE = new Set("äöüßÄÖÜ");
 const score = (s, set) => [...s].filter((ch) => set.has(ch)).length;
+// Sentences often have no umlauts ("Verkaufst du das Haus / es?" | "Prodáš ten dům?"), so also look at common words.
+const GERMAN_WORDS = /(?<![\p{L}])(ich|du|er|sie|es|wir|ihr|der|die|das|dem|des|ist|sind|nicht|und|ein|eine|einen|ihn|mich|dich|mit|auf)(?![\p{L}])/iu;
+const CZECH_WORDS = /(?<![\p{L}])(to|ten|ta|tu|je|se|si|mi|ho|ji|jsem|ne)(?![\p{L}])/iu;
+const looksCzech = (s) => /[ěščřžýůťďňáéíóú]/i.test(s) || CZECH_WORDS.test(s);
+const swapped = (de, cs) =>
+  (score(de, CZ) > score(de, DE) && score(cs, DE) > score(cs, CZ)) ||
+  (GERMAN_WORDS.test(cs) && !GERMAN_WORDS.test(de) && looksCzech(de));
 export const isDate = (v) => /^\d{1,2}\.\s*\d{1,2}\.?$/.test((v || "").trim());
 // pronunciation hints like "schwer   / švééér /" or "čteme / i dé e /" (never "er / sie / es hat")
 const stripHints = (v) => (v || "").split("\n")
@@ -112,9 +119,18 @@ export function* pairs(a, b) {
     const ga = groups(a, n), gb = groups(b, n);
     if (ga.length > 1 && ga.length === gb.length) { cand = ga.map((x, i) => [x, gb[i]]); break; }
   }
+  // several German nouns for one Czech word are synonyms: "s Zeug, -e      e Sache, -n" | "věc"
+  const ga = groups(a, 2);
+  if (cand.length === 1 && ga.length > 1 && groups(b, 2).length === 1 && ga.every((g) => /^\(?[res]\)? \p{Lu}/u.test(g)))
+    cand = [[ga.join(" = "), clean(b)]];
   for (let [de, cs] of cand) {
     if (!de || !cs) continue;
-    if (score(de, CZ) > score(de, DE) && score(cs, DE) > score(cs, CZ)) [de, cs] = [cs, de]; // columns swapped
+    if (swapped(de, cs)) [de, cs] = [cs, de]; // columns swapped
+    // lists like "rád - raději - nejraději" | "gern - lieber - am liebsten" -> one card each
+    // "–" lists are pronunciation drills of bare words ("Hamburg – Haus – haben"), not vocab
+    if (de.split(/\s+–\s+/).length >= 3) continue;
+    const ld = de.split(/\s+-\s+/), lc = cs.split(/\s+-\s+/);
+    if (ld.length >= 3 && ld.length === lc.length) { yield* ld.map((d, i) => [d, lc[i]]); continue; }
     // same number of "/" options on both sides -> one card per option
     const ed = expandSlashes(de), ec = expandSlashes(cs);
     if (ed.length > 1 && ed.length === ec.length) yield* ed.map((d, i) => [d, ec[i]]);
@@ -143,7 +159,8 @@ async function readSheet(sheetId, { name, gid }) {
   const items = [], seen = new Set();
   let started = false;
   for (const row of parseCsv(await res.text())) {
-    if (!started) { started = isDate(row[0]); continue; } // skip contacts + student list
+    // skip contacts + student list: words start after the first lesson date ("1. 10.") or a year row (" ,2026")
+    if (!started) { started = isDate(row[0]) || row.slice(0, 2).some((c) => /^\s*20\d\d\s*$/.test(c || "")); continue; }
     for (let [de, cs] of pairs(row[0], row[1])) {
       if (!isPair(de, cs)) continue;
       de = ARTICLES[de] || de;

@@ -50,6 +50,31 @@ export default {
   "Was nimmt er / dein Sohn?|Co si dá on / tvůj syn?": [
     ["Co si dá on?", "Was nimmt er?"], ["Co si dá tvůj syn?", "Was nimmt dein Sohn?"],
   ],
+  // ZS 2026-27
+  "r Chef, -s e Chefin, -nen|šéf, šéfová": [
+    ["šéf", "r Chef, -s"], ["šéfová", "e Chefin, -nen"],
+  ],
+  "teilzeit arbeiten x vollzeit arbeiten|pracovat na částečný x plný úvazek": [
+    ["pracovat na částečný úvazek", "teilzeit arbeiten"], ["pracovat na plný úvazek", "vollzeit arbeiten"],
+  ],
+  // older tabs
+  "r Künstler, - e Künstlerin, -nen|umělec": [
+    ["umělec", "r Künstler, -"], ["umělkyně", "e Künstlerin, -nen"],
+  ],
+  "r Reiseleiter, - e Reiseleiterin, -nen|průvodce": [
+    ["průvodce", "r Reiseleiter, -"], ["průvodkyně", "e Reiseleiterin, -nen"],
+  ],
+  "schlagen (hat geschlagen) e Schlagsahne, -n s Schlagzeug|mlátit, bít, tlouci bubny, bicí souprav": [
+    ["mlátit, bít, tlouci", "schlagen (hat geschlagen)"], ["šlehačka", "e Schlagsahne, -n"], ["bubny, bicí souprava", "s Schlagzeug"],
+  ],
+  "s Brot, -e s Osterbrot, -e|mazanec": [["mazanec", "s Osterbrot, -e"]],
+  "r Mann - e Frau|muž - žena = manžel - manželka": [["muž, manžel", "r Mann"], ["žena, manželka", "e Frau"]],
+  // headings and German-only tables (both columns German)
+  'Slovesa "stellen x stehen - legen x liegen - setzen x sitzen - hängen"|Slovesa "postavit x stát - položit x ležet - posadit x sedět - pověsit x viset"': [],
+  "stellen - hat gestellt|stehen - hat gestanden": [],
+  "legen - hat gelegt|liegen - hat gelegen": [],
+  "hängen - hat gehängt|hängen - hat gehangen": [],
+  "setzen - hat gesetzt|sitzen - hat gesessen": [],
 };
 
 // German nouns the sheet lists without an article that are normally used with one.
