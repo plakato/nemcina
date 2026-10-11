@@ -1,0 +1,23 @@
+name = "nemcina"
+main = "src/worker.js"
+account_id = "ba8fecd59fd3205323517712ce3aedd7"
+compatibility_date = "2026-05-01"
+
+# Serves public/index.html; /api/* goes to the Worker first.
+[assets]
+directory = "public"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "nemcina"
+database_id = "e25fcd1b-09c5-4867-9f8f-d274cc2fd596"
+
+# Re-read the teacher's sheet every day at 04:00 UTC (06:00 Prague in summer, 05:00 in winter).
+[triggers]
+crons = ["0 4 * * *"]
+
+[[routes]]
+pattern = "nemcina.brezinovi.sk"
+custom_domain = true

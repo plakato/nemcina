@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Němčina – slovíčka</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: one centered column — name bar, the card, special-letter keys, semester filter. */
+:root {
+  --bg: #f3f4f1;
+  --surface: #ffffff;
+  --ink: #1d2330;
+  --muted: #5d6573;
+  --line: #d9ddd6;
+  --accent: #2b4a8b;
+  --accent-ink: #ffffff;
+  --good: #2f7d4f;
+  --good-bg: #e3f2e8;
+  --bad: #b23a2e;
+  --bad-bg: #f8e4e1;
+  --chip: #e8ebe6;
+  --font-display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14171d; --surface: #1d2129; --ink: #e9ebef; --muted: #9aa2b0; --line: #2f3440;
+    --accent: #7e9fe6; --accent-ink: #10141c; --good: #6fcf97; --good-bg: #183327;
+    --bad: #f08a7e; --bad-bg: #3a1f1c; --chip: #272c36; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14171d; --surface: #1d2129; --ink: #e9ebef; --muted: #9aa2b0; --line: #2f3440;
+  --accent: #7e9fe6; --accent-ink: #10141c; --good: #6fcf97; --good-bg: #183327;
+  --bad: #f08a7e; --bad-bg: #3a1f1c; --chip: #272c36; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { color-scheme: light; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
+.wrap { max-width: 640px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 48px; display: flex; flex-direction: column; gap: 20px; }
+
+header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; margin: 0; letter-spacing: -0.01em; margin-right: auto; }
+h1 span { color: var(--muted); font-weight: 500; }
+.name { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.name label { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+input[type=text] { font: inherit; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 8px; padding: 8px 10px; min-width: 0; }
+input[type=text]:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+#name { width: 11rem; }
+.people { display: flex; gap: 6px; flex-wrap: wrap; }
+.people button { font: inherit; font-size: .85rem; border: 0; background: var(--chip); color: var(--ink); padding: 4px 10px; border-radius: 99px; cursor: pointer; }
+.people button[aria-pressed=true] { background: var(--accent); color: var(--accent-ink); }
+
+.stats { display: flex; gap: 8px; flex-wrap: wrap; font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.stats b { color: var(--ink); }
+.stats .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; vertical-align: 1px; }
+.stats span { background: var(--surface); border: 1px solid var(--line); padding: 3px 10px; border-radius: 99px; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 28px 22px 22px; display: flex; flex-direction: column; gap: 18px; }
+.from { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; display: flex; justify-content: space-between; gap: 8px; }
+.from .again { color: var(--bad); }
+#prompt { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.5rem, 5vw, 2.1rem); line-height: 1.2; margin: 0; text-wrap: balance; overflow-wrap: anywhere; min-height: 2.4em; }
+#answer { width: 100%; font-size: 1.25rem; padding: 12px 14px; }
+.keys { display: flex; gap: 6px; flex-wrap: wrap; }
+.keys button { font: inherit; font-size: 1.1rem; width: 44px; height: 40px; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 8px; cursor: pointer; }
+.keys button:hover { border-color: var(--accent); }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 700; border-radius: 8px; padding: 10px 18px; cursor: pointer; border: 1.5px solid transparent; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: transparent; color: var(--muted); border-color: var(--line); }
+.btn:focus-visible, .keys button:focus-visible, .people button:focus-visible, summary:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 50%, transparent); outline-offset: 2px; }
+
+.result { border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+.result.ok { background: var(--good-bg); }
+.result.no { background: var(--bad-bg); }
+.result .verdict { font-weight: 700; }
+.result.ok .verdict { color: var(--good); }
+.result.no .verdict { color: var(--bad); }
+.result .correct { font-size: 1.2rem; overflow-wrap: anywhere; }
+.result .yours { font-size: .9rem; color: var(--muted); overflow-wrap: anywhere; }
+.result .override { align-self: flex-start; font: inherit; font-size: .85rem; background: none; border: 0; padding: 0; color: var(--muted); text-decoration: underline; cursor: pointer; }
+.hint { font-size: .8rem; color: var(--muted); }
+
+details { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; }
+summary { cursor: pointer; font-weight: 700; }
+.sheets { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.sheets label { display: flex; gap: 8px; align-items: center; font-variant-numeric: tabular-nums; }
+.sheets small { color: var(--muted); }
+.reset { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; font-size: .85rem; color: var(--muted); }
+.reset button { font: inherit; font-size: .85rem; }
+.note { font-size: .85rem; color: var(--muted); }
+.empty { color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { .result { animation: pop .18s ease-out; } @keyframes pop { from { transform: translateY(4px); opacity: .6 } } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Němčina <span>· slovíčka</span></h1>
+    <div class="name">
+      <label for="name">Jméno</label>
+      <input id="name" type="text" placeholder="Napiš své jméno" autocomplete="off">
+    </div>
+    <div class="people" id="people"></div>
+  </header>
+
+  <div class="stats" id="stats" aria-live="polite"></div>
+
+  <section class="card" id="card">
+    <div class="from"><span>Česky → německy</span><span id="tag"></span></div>
+    <p id="prompt" class="empty">Načítám slovíčka…</p>
+    <form id="form" autocomplete="off">
+      <input id="answer" type="text" placeholder="Německy…" spellcheck="false" autocapitalize="off" autocorrect="off" lang="de" disabled>
+    </form>
+    <div class="keys" id="keys"></div>
+    <div id="result" hidden></div>
+    <div class="actions">
+      <button class="btn primary" id="go" type="button" disabled>Zkontrolovat</button>
+      <button class="btn ghost" id="dunno" type="button" disabled>Nevím</button>
+    </div>
+    <div class="hint">Enter = zkontrolovat / další. Záleží na pravopisu i velkých písmenech. Podstatná jména se členem (der, die, das nebo r, e, s).</div>
+  </section>
+
+  <details id="opts">
+    <summary>Které semestry procvičovat</summary>
+    <div class="sheets" id="sheets"></div>
+    <div class="reset" id="resetRow"></div>
+    <p class="note" id="sync"></p>
+  </details>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const LS = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  };
+
+  // ---------- state ----------
+  let sheets = [];                 // [{id, sheet, items:[[id,cs,de]]}]
+  let byId = new Map();            // id -> {id, cs, de, sheet}
+  let altsByCs = new Map();        // cs -> [de, de...] (same Czech, several accepted answers)
+  let extraById = new Map();       // id -> answers also accepted after review (not shown as the solution)
+  let checkedAt = null;
+  let names = [];
+  let me = null;                   // current name
+  let prog = { known: {}, missed: {} };
+  let disabled = new Set(LS.get("sheetsOff", []));
+  let card = null, checked = false, requeue = [], turn = 0, seenAt = {};
+  // a word isn't shown again until at least this many other cards have passed
+  const MIN_GAP = 12;
+  let online = true;
+
+  // must match slugify() in src/worker.js
+  const slug = (n) => n.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
+
+  // ---------- answer checking ----------
+  const ART = { r: "der", e: "die", s: "das" };
+  function norm(s) {
+    return s.replace(/[„“"'’.,!?;:()]/g, " ").replace(/\s+/g, " ").trim();
+  }
+  // same as expandSlashes() in src/worker.js
+  // "Je mi zima / teplo / horko." -> ["Je mi zima.", "Je mi teplo.", "Je mi horko."]
+  // Words before the first "/" and after the last one are shared by every option.
+  // Returns [s] when the line has no " / ".
+  function expandSlashes(s) {
+    const end = (s.match(/[.!?]+$/) || [""])[0]; // final punctuation belongs to every option
+    const parts = s.slice(0, s.length - end.length).split(/\s+\/\s+/);
+    if (parts.length < 2 || parts.some((p) => !p.trim())) return [s];
+    const words = parts.map((p) => p.trim().split(" "));
+    const first = words[0], last = words[words.length - 1], middle = words.slice(1, -1);
+    // options written out in full ("něco k jídlu / něco k pití") share nothing
+    if (first.length > 1 && first[0] === last[0]) return parts.map((p) => p.trim() + end);
+    let prefix, options, suffix = [];
+    const anchor = first.lastIndexOf(last[0]);
+    if (anchor > 0) {
+      // options start with the same word: "Ich komme aus Tschechien / aus der Ukraine"
+      prefix = first.slice(0, anchor);
+      options = [first.slice(anchor), ...middle, last];
+    } else {
+      // how many words one option takes: from the middle options when there are any
+      const mid = middle.map((w) => w.length);
+      const width = mid.length && mid.every((n) => n === mid[0]) ? mid[0] : 1;
+      if (first.length < width || last.length < width) return [s];
+      prefix = first.slice(0, first.length - width);
+      suffix = last.slice(width);
+      options = [first.slice(-width), ...middle, last.slice(0, width)];
+    }
+    return options.map((o) => [...prefix, ...o, ...suffix].join(" ") + end);
+  }
+  function variants(de) {
+    const out = new Set();
+    const add = (s) => { s = s.trim(); if (!s) return; out.add(norm(s));
+      // r/e/s Haus -> der/die/das Haus
+      const m = s.match(/^([res])\s+(.*)$/); if (m) out.add(norm(ART[m[1]] + " " + m[2]));
+    };
+    const base = de.replace(/\([^)]*\)/g, " ").replace(/\s+/g, " ").trim();
+    for (const s of new Set([de, base, ...expandSlashes(de), ...expandSlashes(base)])) {
+      add(s);
+      add(s.replace(/,\s*[äöüÄÖÜ]?-\w*\.?\s*$/, ""));             // drop plural marker ", -n" / ", ö-e"
+      for (const part of s.split(/\s=\s/)) { add(part); add(part.replace(/,\s*[äöü]?-\w*\s*$/, "")); }
+    }
+    return out;
+  }
+  // Spelling and capitals must match exactly; only punctuation and spacing are ignored.
+  // Allowed: a capital first letter when the answer is a whole sentence, and ALL CAPS.
+  const isCaps = (s) => /\p{Lu}/u.test(s) && !/\p{Ll}/u.test(s.replace(/ß/g, ""));
+  function grade(answer, w) {
+    const a = norm(answer);
+    if (!a) return { ok: false };
+    const answers = [...(altsByCs.get(w.cs) || [w.de]), ...(extraById.get(w.id) || [])];
+    for (const de of answers) {
+      const sentence = /[.!?]\s*$/.test(de);
+      for (const v of variants(de)) {
+        if (a === v) return { ok: true };
+        if (sentence && a === v.charAt(0).toUpperCase() + v.slice(1)) return { ok: true };
+        if (isCaps(a) && a.toUpperCase() === v.toUpperCase()) return { ok: true };
+      }
+    }
+    return { ok: false };
+  }
+
+  // ---------- picking the next word ----------
+  function pool() {
+    const out = [];
+    for (const s of sheets) if (!disabled.has(s.id)) for (const it of s.items) out.push(it[0]);
+    return out;
+  }
+  function pick() {
+    const known = prog.known, missed = prog.missed;
+    // a word you just got wrong comes back later, once you've had time to forget it
+    for (let i = 0; i < requeue.length; i++) {
+      if (requeue[i].due <= 0) { const id = requeue.splice(i, 1)[0].id; if (byId.has(id) && !known[id]) return id; }
+    }
+    const ids = pool();
+    const waiting = (id) => requeue.some((r) => r.id === id);
+    const rested = (id) => !(id in seenAt) || turn - seenAt[id] > MIN_GAP;
+    const missedIds = ids.filter((id) => missed[id] && !known[id] && rested(id) && !waiting(id));
+    const fresh = ids.filter((id) => !missed[id] && !known[id] && rested(id));
+    let from = fresh;
+    if (missedIds.length && (Math.random() < 0.35 || !fresh.length)) from = missedIds;
+    if (from.length) return from[Math.floor(Math.random() * from.length)];
+    // only a few words left: take the one you saw longest ago, never the one just shown
+    let left = ids.filter((id) => !known[id] && !waiting(id));
+    if (!left.length) left = ids.filter((id) => !known[id]);
+    if (left.length > 1 && card) left = left.filter((id) => id !== card.id);
+    if (!left.length) return null;
+    const ago = (id) => (id in seenAt ? seenAt[id] : -Infinity);
+    return left.reduce((a, b) => (ago(b) < ago(a) ? b : a));
+  }
+  function next() {
+    requeue.forEach((r) => r.due--);
+    const id = pick();
+    checked = false;
+    $("result").hidden = true;
+    $("answer").value = "";
+    if (!id) {
+      card = null;
+      $("prompt").textContent = pool().length ? "Hotovo! Všechna slovíčka umíš." : "Vyber aspoň jeden semestr níže.";
+      $("prompt").className = "empty";
+      $("tag").textContent = "";
+      setEnabled(false);
+      return;
+    }
+    card = byId.get(id);
+    seenAt[id] = ++turn;
+    $("prompt").textContent = card.cs;
+    $("prompt").className = "";
+    const n = prog.missed[id];
+    $("tag").innerHTML = "";
+    const t = document.createElement("span");
+    if (n) { t.className = "again"; t.textContent = "opakování · chyba " + n + "×"; }
+    else t.textContent = card.sheet;
+    $("tag").append(t);
+    setEnabled(true);
+    $("go").textContent = "Zkontrolovat";
+    $("answer").focus();
+  }
+  function setEnabled(on) {
+    $("answer").disabled = !on; $("go").disabled = !on; $("dunno").disabled = !on;
+  }
+
+  function showResult(ok, typed) {
+    const r = $("result");
+    r.hidden = false;
+    r.className = "result " + (ok ? "ok" : "no");
+    r.innerHTML = "";
+    const v = document.createElement("div"); v.className = "verdict";
+    v.textContent = ok ? "Správně!" : "Špatně";
+    const c = document.createElement("div"); c.className = "correct";
+    c.textContent = (altsByCs.get(card.cs) || [card.de]).join("  ·  ");
+    r.append(v, c);
+    if (!ok && typed) {
+      const y = document.createElement("div"); y.className = "yours"; y.textContent = "Tvoje odpověď: " + typed; r.append(y);
+      const o = document.createElement("button"); o.type = "button"; o.className = "override";
+      o.textContent = "Měl/a jsem to dobře – počítat jako správně";
+      o.onclick = () => {
+        record(card.id, true, typed); showResult(true, typed);
+        const n = document.createElement("div"); n.className = "yours";
+        n.textContent = "Uloženo ke kontrole. Pokud je tvoje odpověď správná, budu ji příště uznávat.";
+        $("result").append(n); $("go").focus();
+      };
+      r.append(o);
+    }
+    $("go").textContent = "Další →";
+    $("dunno").disabled = true;
+  }
+
+  function check(giveUp) {
+    if (!card) return;
+    if (checked) { next(); return; }
+    const typed = $("answer").value.trim();
+    if (!typed && !giveUp) { $("answer").focus(); return; }
+    if (!me) { $("name").focus(); $("prompt").textContent = "Nejdřív nahoře napiš své jméno."; return; }
+    checked = true;
+    const g = giveUp ? { ok: false } : grade(typed, card);
+    record(card.id, g.ok);
+    showResult(g.ok, typed);
+    $("go").focus();
+  }
+
+  // ---------- progress (saved on the server, queued locally until sent) ----------
+  // disputedAnswer: what was typed when "Měl/a jsem to dobře" was clicked (saved for review)
+  function record(id, ok, disputedAnswer) {
+    if (ok) {
+      prog.known[id] = 1;
+      delete prog.missed[id];
+      requeue = requeue.filter((r) => r.id !== id);
+    } else {
+      prog.missed[id] = (prog.missed[id] || 0) + 1;
+      requeue.push({ id, due: 15 + Math.floor(Math.random() * 10) });
+    }
+    const key = "queue:" + slug(me);
+    const entry = disputedAnswer ? { id, ok, disputed: true, typed: disputedAnswer } : { id, ok };
+    LS.set(key, [...LS.get(key, []), entry]);
+    LS.set("prog:" + slug(me), prog);
+    flush();
+    renderStats();
+  }
+  let flushing = false;
+  async function flush() {
+    if (!me || flushing) return;
+    const name = me, key = "queue:" + slug(name);
+    const queue = LS.get(key, []);
+    if (!queue.length) return;
+    flushing = true;
+    try {
+      const res = await fetch("/api/progress/" + slug(name), {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name, answers: queue }), keepalive: true,
+      });
+      if (!res.ok) throw new Error(res.status);
+      LS.set(key, LS.get(key, []).slice(queue.length));
+      if (!names.includes(name)) { names.push(name); renderPeople(); }
+      setOnline(true);
+    } catch { setOnline(false); }
+    flushing = false;
+    if (LS.get(key, []).length && online) flush();
+  }
+  function setOnline(v) { if (online !== v) { online = v; renderSync(); } }
+  setInterval(flush, 15000);
+
+  function applyQueue(p, queue) {
+    for (const { id, ok } of queue) {
+      if (ok) { p.known[id] = 1; delete p.missed[id]; }
+      else { delete p.known[id]; p.missed[id] = (p.missed[id] || 0) + 1; }
+    }
+    return p;
+  }
+  async function setName(n) {
+    n = (n || "").trim().slice(0, 40);
+    if (!n || !slug(n)) return;
+    me = n;
+    $("name").value = n;
+    LS.set("me", n);
+    let server = null;
+    try {
+      const res = await fetch("/api/progress/" + slug(n));
+      if (res.ok) server = await res.json();
+      setOnline(res.ok);
+    } catch { setOnline(false); }
+    if (me !== n) return;
+    // server copy plus anything answered offline that hasn't been sent yet
+    prog = server ? applyQueue(server, LS.get("queue:" + slug(n), [])) : LS.get("prog:" + slug(n), { known: {}, missed: {} });
+    LS.set("prog:" + slug(n), prog);
+    requeue = []; seenAt = {}; turn = 0;
+    renderPeople(); renderStats();
+    if (sheets.length) next();
+    flush();
+  }
+
+  // ---------- rendering ----------
+  function renderStats() {
+    const st = $("stats"); st.innerHTML = "";
+    if (!sheets.length) return;
+    const ids = pool();
+    let k = 0, m = 0;
+    for (const id of ids) { if (prog.known[id]) k++; else if (prog.missed[id]) m++; }
+    const pill = (color, label, n) => {
+      const s = document.createElement("span");
+      if (color) { const d = document.createElement("i"); d.className = "dot"; d.style.background = `var(${color})`; s.append(d); }
+      const b = document.createElement("b"); b.textContent = n;
+      s.append(b, " " + label); st.append(s);
+    };
+    pill("--good", "umím", k);
+    pill("--bad", "k opakování", m);
+    pill(null, "zbývá nových", ids.length - k - m);
+  }
+  function renderPeople() {
+    const p = $("people"); p.innerHTML = "";
+    const all = [...new Set([...names, ...(me ? [me] : [])])].sort((a, b) => a.localeCompare(b, "cs"));
+    if (all.length < 2 && all[0] === me) return;
+    for (const n of all) {
+      const b = document.createElement("button"); b.type = "button"; b.textContent = n;
+      b.setAttribute("aria-pressed", String(n === me));
+      b.onclick = () => setName(n);
+      p.append(b);
+    }
+  }
+  function renderSheets() {
+    const box = $("sheets"); box.innerHTML = "";
+    for (const s of sheets) {
+      const l = document.createElement("label");
+      const c = document.createElement("input"); c.type = "checkbox"; c.id = "sh-" + s.id; c.checked = !disabled.has(s.id);
+      c.onchange = () => { c.checked ? disabled.delete(s.id) : disabled.add(s.id); LS.set("sheetsOff", [...disabled]); renderStats(); if (!checked) next(); };
+      const sm = document.createElement("small"); sm.textContent = s.items.length + " slovíček";
+      l.append(c, s.sheet + " ", sm); box.append(l);
+    }
+    const rr = $("resetRow"); rr.innerHTML = "";
+    const b = document.createElement("button"); b.type = "button"; b.className = "btn ghost"; b.textContent = "Začít znovu (smazat můj postup)";
+    let armed = false;
+    b.onclick = async () => {
+      if (!me) return;
+      if (!armed) { armed = true; b.textContent = "Opravdu smazat postup pro " + me + "? Klikni znovu"; return; }
+      armed = false;
+      try {
+        const res = await fetch("/api/progress/" + slug(me), { method: "DELETE" });
+        if (!res.ok) throw new Error(res.status);
+      } catch { b.textContent = "Nepodařilo se smazat – zkus to znovu"; return; }
+      prog = { known: {}, missed: {} }; requeue = []; seenAt = {}; turn = 0;
+      LS.set("queue:" + slug(me), []); LS.set("prog:" + slug(me), prog);
+      renderStats(); next();
+      b.textContent = "Postup smazán";
+    };
+    rr.append(b);
+    renderSync();
+  }
+  function renderSync() {
+    const parts = [];
+    if (checkedAt) parts.push("Slovíčka naposledy zkontrolována v tabulce učitele: " + new Date(checkedAt).toLocaleString("cs-CZ", { day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" }) + ".");
+    parts.push(online
+      ? "Tvůj postup se ukládá pod tvým jménem a je dostupný z kteréhokoli zařízení."
+      : "Teď se nedaří spojit se serverem. Odpovědi se uloží, jakmile bude spojení zpět.");
+    $("sync").textContent = parts.join(" ");
+  }
+
+  function ingest(data) {
+    sheets = (data.sheets || []).filter((s) => Array.isArray(s.items));
+    checkedAt = data.checkedAt || null;
+    byId = new Map(); altsByCs = new Map(); extraById = new Map();
+    for (const s of sheets) for (const [id, cs, de, extra] of s.items) {
+      if (extra) extraById.set(id, extra);
+      byId.set(id, { id, cs, de, sheet: s.sheet });
+      const a = altsByCs.get(cs) || []; if (!a.includes(de)) a.push(de); altsByCs.set(cs, a);
+    }
+    renderSheets(); renderStats();
+  }
+
+  // ---------- special characters ----------
+  for (const ch of ["ä", "ö", "ü", "ß", "Ä", "Ö", "Ü"]) {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = ch; b.setAttribute("aria-label", "Vložit " + ch);
+    b.addEventListener("mousedown", (e) => e.preventDefault());
+    b.onclick = () => {
+      const i = $("answer"); if (i.disabled) return;
+      const s = i.selectionStart ?? i.value.length, e = i.selectionEnd ?? s;
+      i.value = i.value.slice(0, s) + ch + i.value.slice(e);
+      i.focus(); i.setSelectionRange(s + 1, s + 1);
+    };
+    $("keys").append(b);
+  }
+
+  // ---------- events ----------
+  $("form").addEventListener("submit", (e) => { e.preventDefault(); check(false); });
+  $("go").onclick = () => check(false);
+  $("dunno").onclick = () => check(true);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && checked && document.activeElement !== $("name")) { e.preventDefault(); next(); }
+  });
+  $("name").addEventListener("change", () => setName($("name").value));
+  $("name").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); setName($("name").value); } });
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flush(); });
+
+  // ---------- boot ----------
+  me = LS.get("me", null);
+  if (me) { $("name").value = me; prog = LS.get("prog:" + slug(me), prog); }
+  renderSync();
+
+  fetch("/api/people").then((r) => r.ok ? r.json() : []).then((n) => { names = n; renderPeople(); }).catch(() => {});
+  fetch("/api/vocab")
+    .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then((data) => {
+      ingest(data);
+      if (!sheets.length) { $("prompt").textContent = "Zatím tu nejsou žádná slovíčka."; return; }
+      if (me) setName(me);
+      else { $("prompt").textContent = "Nahoře napiš své jméno a začni."; $("name").focus(); }
+    })
+    .catch(() => { $("prompt").textContent = "Slovíčka se nepodařilo načíst. Zkus stránku obnovit."; });
+})();
+</script>
+</body>
+</html>
