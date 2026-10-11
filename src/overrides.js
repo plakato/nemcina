@@ -75,6 +75,8 @@ export default {
   "legen - hat gelegt|liegen - hat gelegen": [],
   "hängen - hat gehängt|hängen - hat gehangen": [],
   "setzen - hat gesetzt|sitzen - hat gesessen": [],
+  // a note, not a translation
+  "Hallo!|všude v německy mluvících zemích": [],
 };
 
 // German nouns the sheet lists without an article that are normally used with one.
