@@ -453,7 +453,7 @@ summary { cursor: pointer; font-weight: 700; }
     const parts = [];
     if (checkedAt) parts.push("Slovíčka naposledy zkontrolována v tabulce učitele: " + new Date(checkedAt).toLocaleString("cs-CZ", { day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" }) + ".");
     parts.push(online
-      ? "Postup se ukládá jen pod tímto jménem, bez hesla. Kdo ho napíše na jakémkoli zařízení, uvidí a může měnit stejný postup."
+      ? "Tvůj postup se ukládá pod tvým jménem."
       : "Teď se nedaří spojit se serverem. Odpovědi se uloží, jakmile bude spojení zpět.");
     $("sync").textContent = parts.join(" ");
   }
